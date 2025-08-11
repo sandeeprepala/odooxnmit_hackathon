@@ -3,6 +3,7 @@ import Product from '../models/Product.js';
 import Pricelist from '../models/Pricelist.js';
 import { calculateItemPrice, calculateOrderTotals, calculateLateFees } from '../utils/priceCalculator.js';
 import { areRangesOverlapping } from '../utils/availability.js';
+import User from '../models/User.js'; // Added import for User
 
 export async function createQuotation(req, res) {
   const { items, notes } = req.body;
@@ -30,13 +31,25 @@ export async function createQuotation(req, res) {
   }
 
   const totals = calculateOrderTotals(populated);
+  
+  // Get customer address from user profile
+  const user = await User.findById(req.user._id);
+  const customerAddress = user.address ? {
+    street: user.address.street,
+    city: user.address.city,
+    state: user.address.state,
+    zipCode: user.address.zipCode,
+    phone: user.phone
+  } : null;
+
   const order = await RentalOrder.create({
     customerId: req.user._id,
     status: 'quotation',
     items: populated,
     totalAmount: totals.totalAmount,
     deposit: totals.deposit,
-    notes
+    notes,
+    customerAddress
   });
   res.status(201).json(order);
 }

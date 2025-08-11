@@ -21,6 +21,7 @@ import SettingsPage from './pages/SettingsPage.jsx';
 import AdminCreateProductPage from './pages/AdminCreateProductPage.jsx';
 import AdminOrderDetailPage from './pages/AdminOrderDetailPage.jsx';
 import AdminOrdersPage from './pages/AdminOrdersPage.jsx';
+import PaymentPage from './pages/PaymentPage.jsx';
 
 function AppContent() {
   const { loading, initialized } = useAuth();
@@ -53,6 +54,7 @@ function AppContent() {
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
           <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
+          <Route path="/payment" element={<ProtectedRoute roles={['customer']}><PaymentPage /></ProtectedRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute roles={['admin']}><DashboardPage /></ProtectedRoute>} />
           <Route path="/admin/orders" element={<ProtectedRoute roles={['admin']}><AdminOrdersPage /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />

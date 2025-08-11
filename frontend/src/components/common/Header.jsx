@@ -16,6 +16,9 @@ export default function Header() {
           <Link className="pill" to="/dashboard">Dashboard</Link>
           <Link className="pill" to={user?.role === 'admin' ? '/admin/orders' : '/orders'}>Order</Link>
           <Link className="pill" to="/products">Products</Link>
+          {user?.role === 'customer' && (
+            <Link className="pill" to="/payment">Payment</Link>
+          )}
           <Link className="pill" to="/reports">Reporting</Link>
           {/* <Link className="pill" to="/settings">Setting</Link> */}
         </nav>

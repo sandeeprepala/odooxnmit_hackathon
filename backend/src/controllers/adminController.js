@@ -29,7 +29,7 @@ export async function getAllOrders(req, res) {
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(Number(limit))
-      .populate('customerId', 'name email')
+      .populate('customerId', 'name email phone address')
       .populate('items.productId', 'name'),
     RentalOrder.countDocuments(filter)
   ]);

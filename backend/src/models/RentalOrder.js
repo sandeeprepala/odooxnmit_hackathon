@@ -36,7 +36,15 @@ const rentalOrderSchema = new mongoose.Schema(
     lateFees: { type: Number, default: 0 },
     paymentStatus: { type: String, enum: ['pending', 'partial', 'paid'], default: 'pending' },
     paymentDetails: [paymentDetailSchema],
-    notes: String
+    notes: String,
+    // Customer address for delivery/pickup
+    customerAddress: {
+      street: String,
+      city: String,
+      state: String,
+      zipCode: String,
+      phone: String
+    }
   },
   { timestamps: true }
 );
