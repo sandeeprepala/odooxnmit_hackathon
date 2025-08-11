@@ -122,7 +122,9 @@ export async function getCustomerRentals(req, res) {
   if (String(userId) !== String(req.user._id) && req.user.role !== 'admin') {
     return res.status(403).json({ message: 'Forbidden' });
   }
-  const orders = await RentalOrder.find({ customerId: userId }).sort({ createdAt: -1 });
+  const orders = await RentalOrder.find({ customerId: userId })
+    .populate('items.productId', 'name')
+    .sort({ createdAt: -1 });
   res.json(orders);
 }
 
@@ -138,7 +140,9 @@ export async function getRentalById(req, res) {
 }
 
 export async function getMyRentals(req, res) {
-  const orders = await RentalOrder.find({ customerId: req.user._id }).sort({ createdAt: -1 });
+  const orders = await RentalOrder.find({ customerId: req.user._id })
+    .populate('items.productId', 'name')
+    .sort({ createdAt: -1 });
   res.json(orders);
 }
 

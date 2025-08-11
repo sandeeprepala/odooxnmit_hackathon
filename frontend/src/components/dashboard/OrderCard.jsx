@@ -9,6 +9,31 @@ export default function OrderCard({ order, onOpen }) {
   const product = firstItem?.productId;
   const productName = product?.name || '-';
   
+  // Function to generate order name from products
+  const getOrderName = (order) => {
+    if (!order.items || order.items.length === 0) {
+      return order.orderNumber || 'Order';
+    }
+    
+    const productNames = order.items
+      .map(item => item.productId?.name || 'Unknown Product')
+      .filter(name => name !== 'Unknown Product');
+    
+    if (productNames.length === 0) {
+      return order.orderNumber || 'Order';
+    }
+    
+    if (productNames.length === 1) {
+      return productNames[0];
+    }
+    
+    if (productNames.length === 2) {
+      return `${productNames[0]} & ${productNames[1]}`;
+    }
+    
+    return `${productNames[0]} +${productNames.length - 1} more`;
+  };
+  
   return (
     <div className="card" onClick={() => onOpen?.(order)} style={{ cursor: 'pointer' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -16,7 +41,10 @@ export default function OrderCard({ order, onOpen }) {
         <StatusBadge status={order.status} />
       </div>
       
-      <div style={{ marginTop: 6 }}>Order ID: {order.orderNumber}</div>
+      <div style={{ marginTop: 6 }}>
+        <strong className="text-lg">{getOrderName(order)}</strong>
+        <div className="text-sm text-gray-400 mt-1">#{order.orderNumber}</div>
+      </div>
       <div>Product: {productName}</div>
       <div style={{ marginTop: 6 }}>Total: ₹{order.totalAmount}</div>
       

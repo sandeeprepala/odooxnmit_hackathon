@@ -33,9 +33,9 @@ export default function RegisterForm() {
   }
 
   return (
+    <div>
+      <h1 style={{textAlign: 'center', marginBottom: '20px', fontSize: '2rem', fontWeight: 'bold' }}>Register Page</h1>
     <form onSubmit={onSubmit} className="card" style={{ maxWidth: 420 }}>
-      <h3>Register</h3>
-      
       <label>Name</label>
       <input 
         name="name" 
@@ -82,10 +82,11 @@ export default function RegisterForm() {
         required 
       />
       
-      <button className="btn" type="submit" disabled={loading}>
+      <button className="btn" type="submit" disabled={loading} style={{margin: '15px'}}>
         {loading ? 'Registering...' : 'Register'}
       </button>
     </form>
+    </div>
   );
 }
 

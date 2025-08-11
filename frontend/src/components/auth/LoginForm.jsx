@@ -172,8 +172,10 @@ export default function LoginForm() {
   }
 
   return (
+    <div >
+      <h1 style={{textAlign: 'center', marginBottom: '20px', fontSize: '2rem', fontWeight: 'bold' }}>Login Page</h1>
     <form onSubmit={onSubmit} className="card" style={{ maxWidth: 420 }}>
-      <h3>Login</h3>
+      
       
       <label>Email</label>
       <input 
@@ -201,7 +203,7 @@ export default function LoginForm() {
         <option value="admin">Admin</option>
       </select>
       
-      <button className="btn" type="submit" disabled={loading}>
+      <button className="btn" type="submit" disabled={loading} style={{margin: '20px'}}>
         {loading ? 'Logging in...' : 'Login'}
       </button>
       
@@ -214,6 +216,7 @@ export default function LoginForm() {
         Forgot Password?
       </button>
     </form>
+    </div>
   );
 }
 

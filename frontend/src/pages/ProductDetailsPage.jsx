@@ -86,7 +86,7 @@ export default function ProductDetailsPage() {
     // Add item to cart
     console.log('Adding item to cart:', { productId: id, quantity, startDate, endDate });
     addItem({ productId: id, quantity, startDate, endDate });
-    alert('Item added to cart successfully!');
+    // alert('Item added to cart successfully!');
   }
 
   if (!product) return <div>Loading...</div>;
@@ -108,7 +108,7 @@ export default function ProductDetailsPage() {
         <div className="card">
           <h3>Book</h3>
           {nextAvailableTime && (
-            <div style={{ marginBottom: '1rem', padding: '0.5rem', backgroundColor: '#f8f9fa', borderRadius: '4px', fontSize: '0.9em' }}>
+            <div style={{ marginBottom: '1rem', padding: '0.5rem', borderRadius: '4px', fontSize: '0.9em' }}>
               <strong>Next Available:</strong> {new Date(nextAvailableTime).toLocaleString()}
             </div>
           )}
@@ -143,7 +143,7 @@ export default function ProductDetailsPage() {
             Add to Cart
           </button>
         </div>
-        <AvailabilityCalendar productId={id} />
+        {/* <AvailabilityCalendar productId={id} /> */}
       </div>
     </div>
   );

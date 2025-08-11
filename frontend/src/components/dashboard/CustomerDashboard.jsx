@@ -14,6 +14,31 @@ export default function CustomerDashboard() {
   
   const pendingPayments = orders.filter(o => o.status === 'confirmed' && o.paymentStatus !== 'paid');
   
+  // Function to generate order name from products
+  const getOrderName = (order) => {
+    if (!order.items || order.items.length === 0) {
+      return order.orderNumber || 'Order';
+    }
+    
+    const productNames = order.items
+      .map(item => item.productId?.name || 'Unknown Product')
+      .filter(name => name !== 'Unknown Product');
+    
+    if (productNames.length === 0) {
+      return order.orderNumber || 'Order';
+    }
+    
+    if (productNames.length === 1) {
+      return productNames[0];
+    }
+    
+    if (productNames.length === 2) {
+      return `${productNames[0]} & ${productNames[1]}`;
+    }
+    
+    return `${productNames[0]} +${productNames.length - 1} more`;
+  };
+  
   return (
     <div>
       {/* Payment Alert */}
@@ -42,10 +67,18 @@ export default function CustomerDashboard() {
         {orders.map((o) => (
           <div key={o._id} className="card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <strong>{o.orderNumber}</strong>
+              <div>
+                <strong className="text-lg">{getOrderName(o)}</strong>
+                <div className="text-sm text-gray-400 mt-1">#{o.orderNumber}</div>
+              </div>
               <StatusBadge status={o.status} />
             </div>
             <div>Total: ₹{o.totalAmount}</div>
+            {o.items && o.items.length > 0 && o.items[0].startDate && (
+              <div className="text-sm text-gray-400 mt-2">
+                📅 {new Date(o.items[0].startDate).toLocaleDateString()} - {new Date(o.items[0].endDate).toLocaleDateString()}
+              </div>
+            )}
             <div style={{ marginTop: '0.5rem' }}>
               Payment: <StatusBadge status={o.paymentStatus} />
             </div>

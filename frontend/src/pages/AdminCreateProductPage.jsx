@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useNotifications } from '../context/NotificationContext.jsx';
 import AvailabilityCalendar from '../components/products/AvailabilityCalendar.jsx';
 
+
 export default function AdminCreateProductPage() {
   const { token } = useAuth();
   const { notify } = useNotifications();
@@ -76,9 +77,7 @@ export default function AdminCreateProductPage() {
         <button className="btn" type="submit" disabled={loading}>Create</button>
       </form>
       {createdProductId && (
-        <div style={{ marginTop: 16 }}>
-          <AvailabilityCalendar productId={createdProductId} />
-        </div>
+        navigate('/products')
       )}
     </div>
   );

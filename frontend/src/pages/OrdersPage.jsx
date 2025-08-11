@@ -6,6 +6,29 @@ import StatusBadge from '../components/common/StatusBadge.jsx';
 export default function OrdersPage() {
   const { user, token } = useAuth();
   const [orders, setOrders] = useState([]);
+  const getOrderName = (order) => {
+    if (!order.items || order.items.length === 0) {
+      return order.orderNumber || 'Order';
+    }
+    
+    const productNames = order.items
+      .map(item => item.productId?.name || 'Unknown Product')
+      .filter(name => name !== 'Unknown Product');
+    
+    if (productNames.length === 0) {
+      return order.orderNumber || 'Order';
+    }
+    
+    if (productNames.length === 1) {
+      return productNames[0];
+    }
+    
+    if (productNames.length === 2) {
+      return `${productNames[0]} & ${productNames[1]}`;
+    }
+    
+    return `${productNames[0]} +${productNames.length - 1} more`;
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -22,8 +45,8 @@ export default function OrdersPage() {
           {orders.map((o) => (
             <div key={o._id} className="card">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <strong>{o.orderNumber}</strong>
-                {console.log(o)}
+                <strong>Product : {getOrderName(o)}</strong>
+                {/* {console.log(getOrderName(o))} */}
                 <StatusBadge status={o.status} />
               </div>
               <div style={{ marginTop: 8 }}>Total: ₹{o.totalAmount}</div>

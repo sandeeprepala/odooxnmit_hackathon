@@ -60,12 +60,12 @@ export default function ProductDetails({ product }) {
       <div>Available Quantity: {product.availableQuantity}</div>
       
       {/* Time Availability Information */}
-      <div style={{ marginTop: '1rem', padding: '1rem', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
+      <div style={{ marginTop: '1rem', padding: '1rem', backgroundColor: '#0d0f13', borderRadius: '8px' }}>
         <h4 style={{ margin: '0 0 0.5rem 0', color: '#495057' }}>Availability Information</h4>
         
         {product.beginRentTime && (
           <div style={{ marginBottom: '0.5rem' }}>
-            <strong>Available from:</strong> {formatDateTime(product.beginRentTime)}
+            <strong >Available from:</strong> {formatDateTime(product.beginRentTime)}
           </div>
         )}
         

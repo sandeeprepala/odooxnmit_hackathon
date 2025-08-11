@@ -13,20 +13,20 @@ export default function Header() {
       <div className="container header-inner">
         <Link to="/" className="brand">Rental Management</Link>
         <nav className="nav">
-          <Link className="pill" to="/dashboard">Dashboard</Link>
+          {user?.role === 'admin' && <Link className="pill" to="/dashboard">Dashboard</Link>}
           <Link className="pill" to={user?.role === 'admin' ? '/admin/orders' : '/orders'}>Order</Link>
           <Link className="pill" to="/products">Products</Link>
           {user?.role === 'customer' && (
             <Link className="pill" to="/payment">Payment</Link>
           )}
-          <Link className="pill" to="/reports">Reporting</Link>
+          {user?.role === 'admin' && <Link className="pill" to="/reports">Reporting</Link>}
           {/* <Link className="pill" to="/settings">Setting</Link> */}
         </nav>
         <div className="auth" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {user?.role === 'admin' && (
             <Link className="pill" to="/admin/products/new">Create Product</Link>
           )}
-          <Link className="pill" to="/cart" style={{ position: 'relative' }}>
+          {user?.role === 'customer' && <Link className="pill" to="/cart" style={{ position: 'relative' }}>
             Cart
             {cartItemCount > 0 && (
               <span style={{
@@ -47,7 +47,7 @@ export default function Header() {
                 {cartItemCount}
               </span>
             )}
-          </Link>
+          </Link>}
           {user ? (
             <>
               <Link className="pill" to="/profile">{user.name}</Link>
