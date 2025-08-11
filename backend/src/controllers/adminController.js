@@ -23,7 +23,12 @@ export async function getAllOrders(req, res) {
   if (status) filter.status = status;
   const skip = (Number(page) - 1) * Number(limit);
   const [items, total] = await Promise.all([
-    RentalOrder.find(filter).sort({ createdAt: -1 }).skip(skip).limit(Number(limit)),
+    RentalOrder.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit))
+      .populate('customerId', 'name email')
+      .populate('items.productId', 'name category'),
     RentalOrder.countDocuments(filter)
   ]);
   res.json({ items, total });
@@ -31,8 +36,32 @@ export async function getAllOrders(req, res) {
 
 export async function updateOrderStatus(req, res) {
   const { status } = req.body;
-  const order = await RentalOrder.findByIdAndUpdate(req.params.id, { status }, { new: true });
+  const order = await RentalOrder.findById(req.params.id);
   if (!order) return res.status(404).json({ message: 'Order not found' });
+  
+  const previousStatus = order.status;
+  
+  // Update the order status
+  order.status = status;
+  await order.save();
+  
+  // Handle quantity management based on status change
+  if (status === 'confirmed' && previousStatus !== 'confirmed') {
+    // Reduce product available quantities when confirming an order
+    for (const item of order.items) {
+      await Product.findByIdAndUpdate(item.productId, { 
+        $inc: { availableQuantity: -Math.abs(item.quantity) } 
+      });
+    }
+  } else if (status === 'returned' && previousStatus !== 'returned') {
+    // Increase product available quantities when marking as returned
+    for (const item of order.items) {
+      await Product.findByIdAndUpdate(item.productId, { 
+        $inc: { availableQuantity: Math.abs(item.quantity) } 
+      });
+    }
+  }
+  
   res.json(order);
 }
 

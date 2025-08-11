@@ -17,6 +17,14 @@ const productSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Ensure availableQuantity defaults to quantity if not provided on create
+productSchema.pre('save', function (next) {
+  if (this.isNew && (this.availableQuantity === undefined || this.availableQuantity === null)) {
+    this.availableQuantity = this.quantity;
+  }
+  next();
+});
+
 productSchema.index({ name: 'text', description: 'text', category: 'text' });
 
 const Product = mongoose.model('Product', productSchema);

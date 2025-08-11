@@ -9,13 +9,15 @@ export default function Header() {
         <Link to="/" className="brand">Rental Management</Link>
         <nav className="nav">
           <Link className="pill" to="/dashboard">Dashboard</Link>
-          <Link className="pill" to="/rentals">Rental</Link>
-          <Link className="pill" to="/orders">Order</Link>
+          <Link className="pill" to={user?.role === 'admin' ? '/admin/orders' : '/orders'}>Order</Link>
           <Link className="pill" to="/products">Products</Link>
           <Link className="pill" to="/reports">Reporting</Link>
           <Link className="pill" to="/settings">Setting</Link>
         </nav>
         <div className="auth" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {user?.role === 'admin' && (
+            <Link className="pill" to="/admin/products/new">Create Product</Link>
+          )}
           <Link className="pill" to="/cart">Cart</Link>
           {user ? (
             <>

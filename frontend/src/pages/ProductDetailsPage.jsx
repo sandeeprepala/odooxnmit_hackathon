@@ -14,16 +14,40 @@ export default function ProductDetailsPage() {
   const [available, setAvailable] = useState(null);
   const { addItem } = useCart();
 
-  useEffect(() => { productService.get(id).then(setProduct); }, [id]);
+  useEffect(() => { 
+    productService.get(id)
+      .then(setProduct)
+      .catch(error => {
+        if (error.message === 'Product not available') {
+          setProduct({ unavailable: true });
+        }
+      }); 
+  }, [id]);
+  
   useEffect(() => {
-    if (startDate && endDate) productService.availability(id, { startDate, endDate }).then((res) => setAvailable(res.available));
-  }, [id, startDate, endDate]);
+    if (startDate && endDate && product && !product.unavailable) {
+      productService.availability(id, { startDate, endDate })
+        .then((res) => setAvailable(res.available))
+        .catch(() => setAvailable(0));
+    }
+  }, [id, startDate, endDate, product]);
 
   function addToCart() {
     addItem({ productId: id, quantity, startDate, endDate });
   }
 
   if (!product) return <div>Loading...</div>;
+  
+  if (product.unavailable) {
+    return (
+      <div className="card">
+        <h2>Product Not Available</h2>
+        <p>This product is currently out of stock or unavailable for rental.</p>
+        <a href="/products" className="btn">Back to Products</a>
+      </div>
+    );
+  }
+  
   return (
     <div className="grid" style={{ gridTemplateColumns: '2fr 1fr' }}>
       <ProductDetails product={product} />
@@ -40,10 +64,12 @@ export default function ProductDetailsPage() {
           </div>
           <div>
             <label>Quantity</label>
-            <input type="number" min="1" value={quantity} onChange={(e) => setQuantity(Number(e.target.value))} />
+            <input type="number" min="1" max={product.availableQuantity} value={quantity} onChange={(e) => setQuantity(Number(e.target.value))} />
           </div>
-          {available !== null && <div>Available: {available}</div>}
-          <button className="btn" onClick={addToCart} disabled={!startDate || !endDate}>Add to Cart</button>
+          <div>Available: {product.availableQuantity}</div>
+          <button className="btn" onClick={addToCart} disabled={!startDate || !endDate || quantity > product.availableQuantity}>
+            Add to Cart
+          </button>
         </div>
         <AvailabilityCalendar productId={id} />
       </div>

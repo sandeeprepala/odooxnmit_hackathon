@@ -1,6 +1,7 @@
 import express from 'express';
 import {
   listProducts,
+  listPublicProducts,
   getProduct,
   createProduct,
   updateProduct,
@@ -12,7 +13,7 @@ import { upload } from '../middlewares/upload.js';
 
 const router = express.Router();
 
-router.get('/', listProducts);
+router.get('/', listPublicProducts);
 router.get('/:id', getProduct);
 router.post('/', authenticate, authorize('admin'), upload.array('images', 5), createProduct);
 router.put('/:id', authenticate, authorize('admin'), upload.array('images', 5), updateProduct);

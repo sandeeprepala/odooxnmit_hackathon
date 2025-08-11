@@ -9,7 +9,7 @@ export default function OrdersPage() {
 
   useEffect(() => {
     if (!user) return;
-    orderService.getByCustomer(user.id || user._id, token).then(setOrders);
+    orderService.getByCustomer(user.id || user._id, token).then(setOrders).catch(() => setOrders([]));
   }, [user, token]);
 
   return (

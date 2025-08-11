@@ -48,6 +48,11 @@ export async function confirmOrder(req, res) {
   }
   order.status = 'confirmed';
   await order.save();
+
+  // Reduce product available quantities
+  for (const it of order.items) {
+    await Product.findByIdAndUpdate(it.productId, { $inc: { availableQuantity: -Math.abs(it.quantity) } });
+  }
   res.json(order);
 }
 
@@ -61,12 +66,19 @@ export async function getCustomerRentals(req, res) {
 }
 
 export async function getRentalById(req, res) {
-  const order = await RentalOrder.findById(req.params.id);
+  const order = await RentalOrder.findById(req.params.id)
+    .populate('customerId', 'name email')
+    .populate('items.productId', 'name category');
   if (!order) return res.status(404).json({ message: 'Order not found' });
   if (String(order.customerId) !== String(req.user._id) && req.user.role !== 'admin') {
     return res.status(403).json({ message: 'Forbidden' });
   }
   res.json(order);
+}
+
+export async function getMyRentals(req, res) {
+  const orders = await RentalOrder.find({ customerId: req.user._id }).sort({ createdAt: -1 });
+  res.json(orders);
 }
 
 export async function markPickup(req, res) {
@@ -86,6 +98,11 @@ export async function markReturn(req, res) {
   const lateFees = calculateLateFees({ expectedReturn: order.returnDate || order.items?.[0]?.endDate, actualReturn: order.actualReturnDate });
   order.lateFees = lateFees;
   await order.save();
+
+  // Increase product available quantities back on return
+  for (const it of order.items) {
+    await Product.findByIdAndUpdate(it.productId, { $inc: { availableQuantity: Math.abs(it.quantity) } });
+  }
   res.json(order);
 }
 
