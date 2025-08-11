@@ -8,10 +8,10 @@ export default function OrderCard({ order, onOpen }) {
   return (
     <div className="card" onClick={() => onOpen?.(order)} style={{ cursor: 'pointer' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <strong>{order.orderNumber}</strong>
+        <strong>{customerName}</strong>
         <StatusBadge status={order.status} />
       </div>
-      <div style={{ marginTop: 6 }}>Customer: {customerName}</div>
+      <div style={{ marginTop: 6 }}>Order ID: {order.orderNumber }</div>
       <div>Product: {productName}</div>
       <div style={{ marginTop: 6 }}>Total: ₹{order.totalAmount}</div>
     </div>

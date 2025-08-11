@@ -10,6 +10,8 @@ export const productService = {
   },
   get: (id) => api.get(`/products/${id}`),
   availability: (id, { startDate, endDate }) => api.get(`/products/${id}/availability?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`),
+  getNextAvailableTime: (id) => api.get(`/products/${id}/next-available-time`),
+  getAvailableTimeSlots: (id) => api.get(`/products/${id}/available-time-slots`),
   create: async (payload, files, token) => {
     const form = new FormData();
     Object.entries(payload).forEach(([k, v]) => form.append(k, v));

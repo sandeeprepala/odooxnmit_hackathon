@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useNotifications } from '../../context/NotificationContext.jsx';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 export default function LoginForm() {
   const { login } = useAuth();
@@ -8,6 +9,8 @@ export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   async function onSubmit(e) {
     e.preventDefault();
@@ -15,6 +18,14 @@ export default function LoginForm() {
       setLoading(true);
       await login(email, password);
       notify('success', 'Logged in');
+      
+      // Redirect to return URL if provided, otherwise to dashboard
+      const returnUrl = searchParams.get('returnUrl');
+      if (returnUrl) {
+        navigate(decodeURIComponent(returnUrl));
+      } else {
+        navigate('/dashboard');
+      }
     } catch (e2) {
       notify('error', e2?.response?.data?.message || 'Login failed');
     } finally {

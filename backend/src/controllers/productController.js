@@ -1,4 +1,5 @@
 import Product from '../models/Product.js';
+import RentalOrder from '../models/RentalOrder.js';
 
 export async function listProducts(req, res) {
   const { q, page = 1, limit = 12, includeUnavailable } = req.query;
@@ -40,6 +41,7 @@ export async function listProducts(req, res) {
     Product.find(filter).sort({ createdAt: -1 }).skip(skip).limit(Number(limit)),
     Product.countDocuments(filter)
   ]);
+
   res.json({ items, total, page: Number(page), pages: Math.ceil(total / Number(limit)) });
 }
 
@@ -87,6 +89,7 @@ export async function listPublicProducts(req, res) {
     Product.find(filter).sort({ createdAt: -1 }).skip(skip).limit(Number(limit)),
     Product.countDocuments(filter)
   ]);
+
   res.json({ items, total, page: Number(page), pages: Math.ceil(total / Number(limit)) });
 }
 
@@ -129,15 +132,138 @@ export async function checkAvailability(req, res) {
   const product = await Product.findById(req.params.id);
   if (!product) return res.status(404).json({ message: 'Product not found' });
   
-  // Use the current availableQuantity from the database
-  // This reflects real-time changes when orders are confirmed/cancelled
-  const available = product.availableQuantity;
+  // Get all confirmed and picked up orders for this product
+  const confirmedOrders = await RentalOrder.find({
+    status: { $in: ['confirmed', 'picked_up'] },
+    'items.productId': product._id
+  });
+  
+  // Calculate actual availability based on overlapping bookings
+  let bookedQuantity = 0;
+  for (const order of confirmedOrders) {
+    for (const item of order.items) {
+      if (String(item.productId) === String(product._id)) {
+        // Check if this booking overlaps with the requested time range
+        const orderStart = new Date(item.startDate);
+        const orderEnd = new Date(item.endDate);
+        const requestStart = new Date(startDate);
+        const requestEnd = new Date(endDate);
+        
+        if (orderStart < requestEnd && requestStart < orderEnd) {
+          bookedQuantity += item.quantity;
+        }
+      }
+    }
+  }
+  
+  const available = Math.max(0, product.quantity - bookedQuantity);
   
   res.json({ 
     productId: product._id, 
     available, 
     total: product.quantity,
-    availableQuantity: product.availableQuantity 
+    availableQuantity: available, // Return calculated availability
+    bookedQuantity
+  });
+}
+
+export async function getNextAvailableTime(req, res) {
+  const product = await Product.findById(req.params.id);
+  if (!product) return res.status(404).json({ message: 'Product not found' });
+  
+  // Get all confirmed orders for this product
+  const confirmedOrders = await RentalOrder.find({
+    status: { $in: ['confirmed', 'picked_up'] },
+    'items.productId': product._id
+  });
+  
+  let nextAvailableTime = new Date(); // Default to now
+  
+  // Find the latest end time from all confirmed bookings
+  for (const order of confirmedOrders) {
+    for (const item of order.items) {
+      if (String(item.productId) === String(product._id)) {
+        const itemEndTime = new Date(item.endDate);
+        if (itemEndTime > nextAvailableTime) {
+          nextAvailableTime = itemEndTime;
+        }
+      }
+    }
+  }
+  
+  // If product has a beginRentTime, use the later of the two
+  if (product.beginRentTime && product.beginRentTime > nextAvailableTime) {
+    nextAvailableTime = product.beginRentTime;
+  }
+  
+  res.json({ 
+    productId: product._id,
+    nextAvailableTime: nextAvailableTime.toISOString(),
+    beginRentTime: product.beginRentTime ? product.beginRentTime.toISOString() : null
+  });
+}
+
+// New function to get available time slots for a product
+export async function getAvailableTimeSlots(req, res) {
+  const product = await Product.findById(req.params.id);
+  if (!product) return res.status(404).json({ message: 'Product not found' });
+  
+  // Get all confirmed orders for this product
+  const confirmedOrders = await RentalOrder.find({
+    status: { $in: ['confirmed', 'picked_up'] },
+    'items.productId': product._id
+  });
+  
+  const now = new Date();
+  const availableSlots = [];
+  
+  // If product has time restrictions, use them as base
+  let currentStart = product.beginRentTime || now;
+  let productEnd = product.endRentTime;
+  
+  // Sort confirmed orders by start date
+  const sortedOrders = [];
+  for (const order of confirmedOrders) {
+    for (const item of order.items) {
+      if (String(item.productId) === String(product._id)) {
+        sortedOrders.push({
+          startDate: new Date(item.startDate),
+          endDate: new Date(item.endDate)
+        });
+      }
+    }
+  }
+  
+  sortedOrders.sort((a, b) => a.startDate - b.startDate);
+  
+  // Find available time slots
+  for (const booking of sortedOrders) {
+    // If there's a gap between current start and booking start, it's available
+    if (currentStart < booking.startDate) {
+      availableSlots.push({
+        startDate: currentStart.toISOString(),
+        endDate: booking.startDate.toISOString(),
+        available: true
+      });
+    }
+    
+    // Move current start to the end of this booking
+    currentStart = booking.endDate;
+  }
+  
+  // If there's time remaining after the last booking, it's available
+  if (!productEnd || currentStart < productEnd) {
+    availableSlots.push({
+      startDate: currentStart.toISOString(),
+      endDate: productEnd ? productEnd.toISOString() : null,
+      available: true
+    });
+  }
+  
+  res.json({ 
+    productId: product._id,
+    availableSlots,
+    totalSlots: availableSlots.length
   });
 }
 

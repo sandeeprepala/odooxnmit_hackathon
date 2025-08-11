@@ -45,7 +45,17 @@ export default function ProductCard({ product }) {
           </div>
           {product.beginRentTime && (
             <div style={{ fontSize: '0.8em', color: 'var(--muted)' }}>
-              Available from: {formatDateTime(product.beginRentTime)}
+              From: {formatDateTime(product.beginRentTime)}
+            </div>
+          )}
+          {product.endRentTime && (
+            <div style={{ fontSize: '0.8em', color: 'var(--muted)' }}>
+              Until: {formatDateTime(product.endRentTime)}
+            </div>
+          )}
+          {!product.beginRentTime && !product.endRentTime && (
+            <div style={{ fontSize: '0.8em', color: '#28a745' }}>
+              ✓ Available anytime
             </div>
           )}
         </div>

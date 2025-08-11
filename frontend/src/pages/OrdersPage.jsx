@@ -23,6 +23,7 @@ export default function OrdersPage() {
             <div key={o._id} className="card">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <strong>{o.orderNumber}</strong>
+                {console.log(o)}
                 <StatusBadge status={o.status} />
               </div>
               <div style={{ marginTop: 8 }}>Total: ₹{o.totalAmount}</div>

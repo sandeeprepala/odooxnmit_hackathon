@@ -2,6 +2,7 @@ import RentalOrder from '../models/RentalOrder.js';
 import Product from '../models/Product.js';
 import Pricelist from '../models/Pricelist.js';
 import { calculateItemPrice, calculateOrderTotals, calculateLateFees } from '../utils/priceCalculator.js';
+import { areRangesOverlapping } from '../utils/availability.js';
 
 export async function createQuotation(req, res) {
   const { items, notes } = req.body;
@@ -46,13 +47,60 @@ export async function confirmOrder(req, res) {
   if (String(order.customerId) !== String(req.user._id) && req.user.role !== 'admin') {
     return res.status(403).json({ message: 'Forbidden' });
   }
+  
+  // Check if order is already confirmed
+  if (order.status === 'confirmed') {
+    return res.status(400).json({ message: 'Order is already confirmed' });
+  }
+  
+  // Check availability for all items before confirming
+  for (const item of order.items) {
+    const product = await Product.findById(item.productId);
+    if (!product) {
+      return res.status(400).json({ message: 'Product not found' });
+    }
+    
+    // Get all confirmed orders for this product that overlap with the current booking
+    const overlappingOrders = await RentalOrder.find({
+      status: { $in: ['confirmed', 'picked_up'] },
+      'items.productId': item.productId,
+      _id: { $ne: order._id } // Exclude current order
+    });
+    
+    let bookedQuantity = 0;
+    for (const overlappingOrder of overlappingOrders) {
+      for (const overlappingItem of overlappingOrder.items) {
+        if (String(overlappingItem.productId) === String(item.productId)) {
+          if (areRangesOverlapping(
+            overlappingItem.startDate, 
+            overlappingItem.endDate, 
+            item.startDate, 
+            item.endDate
+          )) {
+            bookedQuantity += overlappingItem.quantity;
+          }
+        }
+      }
+    }
+    
+    const availableQuantity = product.quantity - bookedQuantity;
+    if (availableQuantity < item.quantity) {
+      return res.status(400).json({ 
+        message: `Insufficient availability for ${product.name}. Available: ${availableQuantity}, Requested: ${item.quantity}` 
+      });
+    }
+  }
+  
   order.status = 'confirmed';
   await order.save();
-
-  // Reduce product available quantities
-  for (const it of order.items) {
-    await Product.findByIdAndUpdate(it.productId, { $inc: { availableQuantity: -Math.abs(it.quantity) } });
+  
+  // Decrease product available quantities when confirmed
+  for (const item of order.items) {
+    await Product.findByIdAndUpdate(item.productId, { 
+      $inc: { availableQuantity: -Math.abs(item.quantity) } 
+    });
   }
+  
   res.json(order);
 }
 
@@ -100,9 +148,12 @@ export async function markReturn(req, res) {
   await order.save();
 
   // Increase product available quantities back on return
-  for (const it of order.items) {
-    await Product.findByIdAndUpdate(it.productId, { $inc: { availableQuantity: Math.abs(it.quantity) } });
+  for (const item of order.items) {
+    await Product.findByIdAndUpdate(item.productId, { 
+      $inc: { availableQuantity: Math.abs(item.quantity) } 
+    });
   }
+  
   res.json(order);
 }
 

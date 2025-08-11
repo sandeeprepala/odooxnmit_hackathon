@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useNotifications } from '../../context/NotificationContext.jsx';
+import { useNavigate } from 'react-router-dom';
 
 export default function RegisterForm() {
+  const navigate = useNavigate();
   const { register } = useAuth();
   const { notify } = useNotifications();
   const [form, setForm] = useState({ name: '', email: '', password: '' });
@@ -16,6 +18,7 @@ export default function RegisterForm() {
       setLoading(true);
       await register(form);
       notify('success', 'Registered and logged in');
+      navigate('/dashboard');
     } catch (e2) {
       notify('error', e2?.response?.data?.message || 'Registration failed');
     } finally {
