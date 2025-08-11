@@ -2,6 +2,10 @@
 
 This is a beginner-friendly MERN stack MVP for a Rental Management System. It includes a Node/Express backend with MongoDB (Mongoose) and a React frontend (Vite). The project is structured for clarity and easy modification.
 
+### Roles
+- Varshith - Both frontend and Backend
+- Sandeep - Both frontend and Backend 
+
 ### Features (MVP)
 - JWT authentication (register, login, profile)
 - Product CRUD with image uploads (Multer)
