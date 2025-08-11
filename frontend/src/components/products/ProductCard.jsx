@@ -2,6 +2,16 @@ import { Link } from 'react-router-dom';
 import { getFirstImageUrl } from '../../utils/imageUtils.js';
 
 export default function ProductCard({ product }) {
+  const formatDateTime = (dateString) => {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   return (
     <div className="card">
       <div style={{ height: 140, background: '#f1f3f5', borderRadius: 6, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
@@ -29,10 +39,15 @@ export default function ProductCard({ product }) {
       <p style={{ minHeight: 48 }}>{product.description}</p>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <div>₹{product.basePrice}/{product.rentalUnit}</div>
+          <div>₹{product.basePrice}/day</div>
           <div style={{ fontSize: '0.9em', color: 'var(--muted)' }}>
             Available: {product.availableQuantity}
           </div>
+          {product.beginRentTime && (
+            <div style={{ fontSize: '0.8em', color: 'var(--muted)' }}>
+              Available from: {formatDateTime(product.beginRentTime)}
+            </div>
+          )}
         </div>
         <Link to={`/products/${product._id}`} className="btn">View</Link>
       </div>

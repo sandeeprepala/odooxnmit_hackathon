@@ -20,6 +20,7 @@ export default function ProductsPage() {
   return (
     <div>
       <h2 className="section-title">Products</h2>
+      
       {user?.role === 'admin' && (
         <div className="admin-controls">
           <p>Admin view: Showing all products including unavailable ones</p>

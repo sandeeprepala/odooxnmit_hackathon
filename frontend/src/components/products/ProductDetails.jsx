@@ -1,6 +1,17 @@
 import { getImageUrl } from '../../utils/imageUtils.js';
 
 export default function ProductDetails({ product }) {
+  const formatDateTime = (dateString) => {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   if (!product) return null;
   return (
     <div className="card">
@@ -45,9 +56,14 @@ export default function ProductDetails({ product }) {
       )}
       
       <p>{product.description}</p>
-      <div>Category: {product.category}</div>
-      <div>Price: ₹{product.basePrice}/{product.rentalUnit}</div>
+      <div>Price: ₹{product.basePrice}/day</div>
       <div>Available Quantity: {product.availableQuantity}</div>
+      {product.beginRentTime && (
+        <div>Available from: {formatDateTime(product.beginRentTime)}</div>
+      )}
+      {product.endRentTime && (
+        <div>Available until: {formatDateTime(product.endRentTime)}</div>
+      )}
     </div>
   );
 }

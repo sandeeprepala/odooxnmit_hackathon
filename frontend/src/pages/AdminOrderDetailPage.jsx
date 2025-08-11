@@ -69,7 +69,6 @@ export default function AdminOrderDetailPage() {
           <div key={idx} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 12, padding: '.4rem 0', borderBottom: '1px solid var(--line)' }}>
             <div>
               <div><strong>{it.productId?.name || it.productId}</strong></div>
-              <div style={{ color: 'var(--muted)' }}>{it.productId?.category || ''}</div>
             </div>
             <div>Qty: {it.quantity}</div>
             <div>Unit: ₹{it.pricePerUnit}</div>

@@ -3,16 +3,18 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { productService } from '../services/productService.js';
 import { useNavigate } from 'react-router-dom';
 import { useNotifications } from '../context/NotificationContext.jsx';
+import AvailabilityCalendar from '../components/products/AvailabilityCalendar.jsx';
 
 export default function AdminCreateProductPage() {
   const { token } = useAuth();
   const { notify } = useNotifications();
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    name: '', description: '', category: '', basePrice: 0, rentalUnit: 'day', quantity: 1, isRentable: true
+    name: '', description: '', basePrice: 0, quantity: 1, isRentable: true, beginRentTime: '', endRentTime: ''
   });
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [createdProductId, setCreatedProductId] = useState(null);
 
   function change(e) {
     const { name, value, type, checked } = e.target;
@@ -23,9 +25,9 @@ export default function AdminCreateProductPage() {
     e.preventDefault();
     try {
       setLoading(true);
-      await productService.create(form, files, token);
+      const created = await productService.create(form, files, token);
+      setCreatedProductId(created?._id);
       notify('success', 'Product created');
-      navigate('/products');
     } catch (e2) {
       notify('error', e2?.response?.data?.message || 'Failed');
     } finally {
@@ -34,44 +36,51 @@ export default function AdminCreateProductPage() {
   }
 
   return (
-    <form className="card" onSubmit={submit}>
-      <h3 className="section-title">Create Product</h3>
-      <label>Name</label>
-      <input name="name" value={form.name} onChange={change} required />
-      <label>Description</label>
-      <textarea name="description" value={form.description} onChange={change} />
-      <label>Category</label>
-      <input name="category" value={form.category} onChange={change} />
-      <div className="two-col">
-        <div>
-          <label>Base Price</label>
-          <input type="number" name="basePrice" value={form.basePrice} onChange={change} />
+    <div>
+      <form className="card" onSubmit={submit}>
+        <h3 className="section-title">Create Product</h3>
+        <label>Name</label>
+        <input name="name" value={form.name} onChange={change} required />
+        <label>Description</label>
+        <textarea name="description" value={form.description} onChange={change} />
+        <div className="two-col">
+          <div>
+            <label>Base Price</label>
+            <input type="number" name="basePrice" value={form.basePrice} onChange={change} />
+          </div>
+          
         </div>
-        <div>
-          <label>Rental Unit</label>
-          <select name="rentalUnit" value={form.rentalUnit} onChange={change}>
-            <option value="hour">Hour</option>
-            <option value="day">Day</option>
-            <option value="week">Week</option>
-            <option value="month">Month</option>
-          </select>
+        <div className="two-col">
+          <div>
+            <label>Quantity</label>
+            <input type="number" name="quantity" value={form.quantity} onChange={change} />
+          </div>
+          <div>
+            <label>
+              <input type="checkbox" name="isRentable" checked={form.isRentable} onChange={change} /> Rentable
+            </label>
+          </div>
         </div>
-      </div>
-      <div className="two-col">
-        <div>
-          <label>Quantity</label>
-          <input type="number" name="quantity" value={form.quantity} onChange={change} />
+        <div className="two-col">
+          <div>
+            <label>Begin Rent Time</label>
+            <input type="datetime-local" name="beginRentTime" value={form.beginRentTime} onChange={change} />
+          </div>
+          <div>
+            <label>End Rent Time</label>
+            <input type="datetime-local" name="endRentTime" value={form.endRentTime} onChange={change} />
+          </div>
         </div>
-        <div>
-          <label>
-            <input type="checkbox" name="isRentable" checked={form.isRentable} onChange={change} /> Rentable
-          </label>
+        <label>Images</label>
+        <input type="file" multiple accept="image/*" onChange={(e) => setFiles(Array.from(e.target.files || []))} />
+        <button className="btn" type="submit" disabled={loading}>Create</button>
+      </form>
+      {createdProductId && (
+        <div style={{ marginTop: 16 }}>
+          <AvailabilityCalendar productId={createdProductId} />
         </div>
-      </div>
-      <label>Images</label>
-      <input type="file" multiple accept="image/*" onChange={(e) => setFiles(Array.from(e.target.files || []))} />
-      <button className="btn" type="submit" disabled={loading}>Create</button>
-    </form>
+      )}
+    </div>
   );
 }
 
