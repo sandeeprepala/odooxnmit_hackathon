@@ -35,9 +35,9 @@ export function AuthProvider({ children }) {
     initializeAuth();
   }, []);
 
-  function login(email, password) {
+  function login(email, password, role) {
     setLoading(true);
-    return authService.login(email, password)
+    return authService.login(email, password, role)
       .then((res) => {
         setUser(res.user);
         setToken(res.token);

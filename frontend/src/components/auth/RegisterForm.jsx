@@ -7,7 +7,13 @@ export default function RegisterForm() {
   const navigate = useNavigate();
   const { register } = useAuth();
   const { notify } = useNotifications();
-  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [form, setForm] = useState({ 
+    name: '', 
+    email: '', 
+    password: '', 
+    phone: '',
+    role: 'customer'
+  });
   const [loading, setLoading] = useState(false);
 
   function onChange(e) { setForm((f) => ({ ...f, [e.target.name]: e.target.value })); }
@@ -17,7 +23,7 @@ export default function RegisterForm() {
     try {
       setLoading(true);
       await register(form);
-      notify('success', 'Registered and logged in');
+      notify('success', 'Registered and logged in successfully');
       navigate('/dashboard');
     } catch (e2) {
       notify('error', e2?.response?.data?.message || 'Registration failed');
@@ -29,13 +35,56 @@ export default function RegisterForm() {
   return (
     <form onSubmit={onSubmit} className="card" style={{ maxWidth: 420 }}>
       <h3>Register</h3>
+      
       <label>Name</label>
-      <input name="name" value={form.name} onChange={onChange} required />
+      <input 
+        name="name" 
+        value={form.name} 
+        onChange={onChange} 
+        required 
+      />
+      
       <label>Email</label>
-      <input type="email" name="email" value={form.email} onChange={onChange} required />
+      <input 
+        type="email" 
+        name="email" 
+        value={form.email} 
+        onChange={onChange} 
+        required 
+      />
+      
+      <label>Phone</label>
+      <input 
+        type="tel" 
+        name="phone" 
+        value={form.phone} 
+        onChange={onChange} 
+        placeholder="Enter phone number"
+      />
+      
+      <label>Role</label>
+      <select 
+        name="role" 
+        value={form.role} 
+        onChange={onChange}
+        required
+      >
+        <option value="customer">Customer</option>
+        <option value="admin">Admin</option>
+      </select>
+      
       <label>Password</label>
-      <input type="password" name="password" value={form.password} onChange={onChange} required />
-      <button className="btn" type="submit" disabled={loading}>Register</button>
+      <input 
+        type="password" 
+        name="password" 
+        value={form.password} 
+        onChange={onChange} 
+        required 
+      />
+      
+      <button className="btn" type="submit" disabled={loading}>
+        {loading ? 'Registering...' : 'Register'}
+      </button>
     </form>
   );
 }

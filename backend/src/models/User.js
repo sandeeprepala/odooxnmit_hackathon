@@ -19,7 +19,10 @@ const userSchema = new mongoose.Schema(
     role: { type: String, enum: ['customer', 'admin'], default: 'customer' },
     phone: String,
     address: addressSchema,
-    isActive: { type: Boolean, default: true }
+    isActive: { type: Boolean, default: true },
+    // OTP fields for password reset
+    resetPasswordOTP: { type: String, select: false },
+    resetPasswordExpires: { type: Date, select: false }
   },
   { timestamps: true }
 );
