@@ -4,8 +4,11 @@ import { productService } from '../services/productService.js';
 import { useCart } from '../context/CartContext.jsx';
 import ProductDetails from '../components/products/ProductDetails.jsx';
 import AvailabilityCalendar from '../components/products/AvailabilityCalendar.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
+import { useNavigate } from 'react-router-dom';
 
 export default function ProductDetailsPage() {
+  const navigate = useNavigate();
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [startDate, setStartDate] = useState('');
@@ -14,7 +17,7 @@ export default function ProductDetailsPage() {
   const [available, setAvailable] = useState(null);
   const [nextAvailableTime, setNextAvailableTime] = useState(null);
   const { addItem } = useCart();
-
+  const { user } = useAuth();
   useEffect(() => { 
     productService.get(id)
       .then(setProduct)
@@ -86,7 +89,7 @@ export default function ProductDetailsPage() {
     // Add item to cart
     console.log('Adding item to cart:', { productId: id, quantity, startDate, endDate });
     addItem({ productId: id, quantity, startDate, endDate });
-    // alert('Item added to cart successfully!');
+    navigate('/cart');
   }
 
   if (!product) return <div>Loading...</div>;
@@ -102,9 +105,10 @@ export default function ProductDetailsPage() {
   }
   
   return (
-    <div className="grid" style={{ gridTemplateColumns: '2fr 1fr' }}>
+    <>
+      <div className="grid" style={{ gridTemplateColumns: '2fr 1fr' }}>
       <ProductDetails product={product} />
-      <div>
+      {user?.role === 'customer' && <div>
         <div className="card">
           <h3>Book</h3>
           {nextAvailableTime && (
@@ -145,7 +149,9 @@ export default function ProductDetailsPage() {
         </div>
         {/* <AvailabilityCalendar productId={id} /> */}
       </div>
+}
     </div>
+    </>
   );
 }
 

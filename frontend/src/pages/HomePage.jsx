@@ -113,7 +113,7 @@ export default function HomePage() {
       {/* Features Section */}
       <section className="features-section">
         <div className="section-header">
-          <h2 className="section-title">Why Choose Us?</h2>
+          <h2 className="section-title" style={{color:"Black"}}>Why Choose Us?</h2>
           <p className="section-subtitle">Experience the difference with our comprehensive rental platform</p>
         </div>
         <div className="features-grid">
@@ -177,7 +177,7 @@ export default function HomePage() {
       {/* Featured Products Section */}
       <section className="featured-section">
         <div className="section-header">
-          <h2 className="section-title">Featured Products</h2>
+          <h2 className="section-title" style={{color: 'Black'}}>Featured Products</h2>
           <p className="section-subtitle">Discover our most popular rental items</p>
         </div>
         <div className="products-grid">
