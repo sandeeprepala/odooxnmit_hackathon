@@ -13,7 +13,7 @@ export async function createQuotation(req, res) {
     const ruleForProduct = rule?.rules?.find(r => String(r.productId) === String(product._id));
     const pricing = calculateItemPrice({
       basePrice: product.basePrice,
-      unit: product.rentalUnit,
+      unit: 'day',
       startDate: it.startDate,
       endDate: it.endDate,
       rule: ruleForProduct
@@ -68,7 +68,7 @@ export async function getCustomerRentals(req, res) {
 export async function getRentalById(req, res) {
   const order = await RentalOrder.findById(req.params.id)
     .populate('customerId', 'name email')
-    .populate('items.productId', 'name category');
+    .populate('items.productId', 'name');
   if (!order) return res.status(404).json({ message: 'Order not found' });
   if (String(order.customerId) !== String(req.user._id) && req.user.role !== 'admin') {
     return res.status(403).json({ message: 'Forbidden' });

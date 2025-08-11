@@ -1,11 +1,8 @@
 import Product from '../models/Product.js';
-import RentalOrder from '../models/RentalOrder.js';
-import { getAvailableQuantity } from '../utils/availability.js';
 
 export async function listProducts(req, res) {
-  const { q, category, page = 1, limit = 12, includeUnavailable } = req.query;
+  const { q, page = 1, limit = 12, includeUnavailable } = req.query;
   const filter = { isActive: true };
-  if (category) filter.category = category;
   if (q) filter.$text = { $search: q };
   
   // For admin users, show all products including unavailable ones
@@ -14,6 +11,28 @@ export async function listProducts(req, res) {
   } else {
     // Customers only see available products (availableQuantity > 0)
     filter.availableQuantity = { $gt: 0 };
+    
+    // Add time-based filtering for rental availability
+    const now = new Date();
+    filter.$or = [
+      // Products without time restrictions
+      { beginRentTime: { $exists: false }, endRentTime: { $exists: false } },
+      // Products that are currently within their rental window
+      { 
+        beginRentTime: { $lte: now },
+        endRentTime: { $gte: now }
+      },
+      // Products that have started but no end time
+      { 
+        beginRentTime: { $lte: now },
+        endRentTime: { $exists: false }
+      },
+      // Products with no start time but have end time in future
+      { 
+        beginRentTime: { $exists: false },
+        endRentTime: { $gte: now }
+      }
+    ];
   }
 
   const skip = (Number(page) - 1) * Number(limit);
@@ -37,10 +56,31 @@ export async function getProduct(req, res) {
 }
 
 export async function listPublicProducts(req, res) {
-  const { q, category, page = 1, limit = 12 } = req.query;
+  const { q, page = 1, limit = 12 } = req.query;
   const filter = { isActive: true, availableQuantity: { $gt: 0 } };
-  if (category) filter.category = category;
   if (q) filter.$text = { $search: q };
+
+  // Add time-based filtering for rental availability
+  const now = new Date();
+  filter.$or = [
+    // Products without time restrictions
+    { beginRentTime: { $exists: false }, endRentTime: { $exists: false } },
+    // Products that are currently within their rental window
+    { 
+      beginRentTime: { $lte: now },
+      endRentTime: { $gte: now }
+    },
+    // Products that have started but no end time
+    { 
+      beginRentTime: { $lte: now },
+      endRentTime: { $exists: false }
+    },
+    // Products with no start time but have end time in future
+    { 
+      beginRentTime: { $exists: false },
+      endRentTime: { $gte: now }
+    }
+  ];
 
   const skip = (Number(page) - 1) * Number(limit);
   const [items, total] = await Promise.all([
@@ -56,6 +96,8 @@ export async function createProduct(req, res) {
   if (body.basePrice !== undefined) body.basePrice = Number(body.basePrice);
   if (body.quantity !== undefined) body.quantity = Number(body.quantity);
   if (body.isRentable !== undefined) body.isRentable = body.isRentable === 'true' || body.isRentable === true;
+  if (body.beginRentTime) body.beginRentTime = new Date(body.beginRentTime);
+  if (body.endRentTime) body.endRentTime = new Date(body.endRentTime);
   const images = req.files?.map(f => `/uploads/${f.filename}`) || [];
   
   // Set availableQuantity to quantity when creating a new product

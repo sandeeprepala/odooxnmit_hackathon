@@ -28,7 +28,7 @@ export async function getAllOrders(req, res) {
       .skip(skip)
       .limit(Number(limit))
       .populate('customerId', 'name email')
-      .populate('items.productId', 'name category'),
+      .populate('items.productId', 'name'),
     RentalOrder.countDocuments(filter)
   ]);
   res.json({ items, total });
