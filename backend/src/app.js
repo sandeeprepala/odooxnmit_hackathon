@@ -13,7 +13,11 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 // Middlewares
-app.use(cors({ origin: env.CLIENT_URL, credentials: true }));
+app.use(cors({
+  origin: [env.CLIENT_URL, 'http://localhost:5173'],
+  credentials: true
+}));
+
 app.use(morgan('dev'));
 app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true }));
