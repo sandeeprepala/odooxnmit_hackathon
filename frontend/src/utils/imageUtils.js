@@ -7,17 +7,36 @@ export function getImageUrl(imagePath) {
     return imagePath;
   }
   
-  // Get the API base URL from environment or default to localhost
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+  // For development, always use localhost:5000
+  // In production, this would use the environment variable
+  const apiBaseUrl = 'http://localhost:5000';
   
   // Remove leading slash if present to avoid double slashes
   const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
   
-  return `${apiBaseUrl}/${cleanPath}`;
+  const fullUrl = `${apiBaseUrl}/${cleanPath}`;
+  
+  // Debug logging
+  console.log('Image URL construction:', {
+    imagePath,
+    apiBaseUrl,
+    cleanPath,
+    fullUrl
+  });
+  
+  return fullUrl;
 }
 
 // Utility function to get the first image URL from an array
 export function getFirstImageUrl(images) {
-  if (!images || images.length === 0) return null;
-  return getImageUrl(images[0]);
+  if (!images || images.length === 0) {
+    console.log('getFirstImageUrl: No images provided');
+    return null;
+  }
+  
+  console.log('getFirstImageUrl called with:', images);
+  const firstImage = images[0];
+  console.log('First image path:', firstImage);
+  
+  return getImageUrl(firstImage);
 }

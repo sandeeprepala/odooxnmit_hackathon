@@ -11,7 +11,9 @@ export default function HomePage() {
     const fetchFeaturedProducts = async () => {
       try {
         const response = await api.get('/products');
+        
         const products = response.items || [];
+        console.log(products);
         setFeaturedProducts(products.slice(0, 6)); // Show first 6 products
       } catch (error) {
         console.error('Error fetching featured products:', error);

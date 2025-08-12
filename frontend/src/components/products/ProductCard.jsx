@@ -12,12 +12,23 @@ export default function ProductCard({ product }) {
     });
   };
 
+  // Debug logging
+  console.log('ProductCard render:', { 
+    productId: product._id, 
+    productName: product.name, 
+    images: product.images,
+    hasImages: product.images && product.images.length > 0 
+  });
+
+  const imageUrl = getFirstImageUrl(product.images);
+  console.log('Constructed image URL:', imageUrl);
+
   return (
     <div className="card">
       <div style={{ height: 140, background: '#f1f3f5', borderRadius: 6, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
         {product.images && product.images.length > 0 ? (
           <img 
-            src={getFirstImageUrl(product.images)} 
+            src={imageUrl} 
             alt={product.name}
             style={{ 
               width: '100%', 
@@ -26,8 +37,12 @@ export default function ProductCard({ product }) {
               borderRadius: 6
             }}
             onError={(e) => {
+              console.error('Image failed to load:', imageUrl, e);
               e.target.style.display = 'none';
               e.target.nextSibling.style.display = 'flex';
+            }}
+            onLoad={() => {
+              console.log('Image loaded successfully:', imageUrl);
             }}
           />
         ) : null}

@@ -12,28 +12,6 @@ export async function listProducts(req, res) {
   } else {
     // Customers only see available products (availableQuantity > 0)
     filter.availableQuantity = { $gt: 0 };
-    
-    // Add time-based filtering for rental availability
-    const now = new Date();
-    filter.$or = [
-      // Products without time restrictions
-      { beginRentTime: { $exists: false }, endRentTime: { $exists: false } },
-      // Products that are currently within their rental window
-      { 
-        beginRentTime: { $lte: now },
-        endRentTime: { $gte: now }
-      },
-      // Products that have started but no end time
-      { 
-        beginRentTime: { $lte: now },
-        endRentTime: { $exists: false }
-      },
-      // Products with no start time but have end time in future
-      { 
-        beginRentTime: { $exists: false },
-        endRentTime: { $gte: now }
-      }
-    ];
   }
 
   const skip = (Number(page) - 1) * Number(limit);
@@ -41,8 +19,40 @@ export async function listProducts(req, res) {
     Product.find(filter).sort({ createdAt: -1 }).skip(skip).limit(Number(limit)),
     Product.countDocuments(filter)
   ]);
-
-  res.json({ items, total, page: Number(page), pages: Math.ceil(total / Number(limit)) });
+  
+  // For each product, calculate the next available time based on existing bookings
+  const itemsWithNextAvailable = await Promise.all(items.map(async (product) => {
+    const productObj = product.toObject();
+    
+    // Find the next available time based on existing confirmed/picked_up orders
+    const overlappingOrders = await RentalOrder.find({
+      status: { $in: ['confirmed', 'picked_up'] },
+      'items.productId': product._id
+    }).sort({ 'items.endDate': 1 });
+    
+    let nextAvailableTime = null;
+    if (overlappingOrders.length > 0) {
+      // Find the latest end time from overlapping orders
+      let latestEndTime = null;
+      for (const order of overlappingOrders) {
+        for (const item of order.items) {
+          if (String(item.productId) === String(product._id)) {
+            if (!latestEndTime || new Date(item.endDate) > latestEndTime) {
+              latestEndTime = new Date(item.endDate);
+            }
+          }
+        }
+      }
+      if (latestEndTime) {
+        nextAvailableTime = latestEndTime;
+      }
+    }
+    
+    productObj.nextAvailableTime = nextAvailableTime;
+    return productObj;
+  }));
+  
+  res.json({ items: itemsWithNextAvailable, total, page: Number(page), pages: Math.ceil(total / Number(limit)) });
 }
 
 export async function getProduct(req, res) {
@@ -62,35 +72,50 @@ export async function listPublicProducts(req, res) {
   const filter = { isActive: true, availableQuantity: { $gt: 0 } };
   if (q) filter.$text = { $search: q };
 
-  // Add time-based filtering for rental availability
-  const now = new Date();
-  filter.$or = [
-    // Products without time restrictions
-    { beginRentTime: { $exists: false }, endRentTime: { $exists: false } },
-    // Products that are currently within their rental window
-    { 
-      beginRentTime: { $lte: now },
-      endRentTime: { $gte: now }
-    },
-    // Products that have started but no end time
-    { 
-      beginRentTime: { $lte: now },
-      endRentTime: { $exists: false }
-    },
-    // Products with no start time but have end time in future
-    { 
-      beginRentTime: { $exists: false },
-      endRentTime: { $gte: now }
-    }
-  ];
+  console.log('listPublicProducts filter:', filter);
 
   const skip = (Number(page) - 1) * Number(limit);
   const [items, total] = await Promise.all([
     Product.find(filter).sort({ createdAt: -1 }).skip(skip).limit(Number(limit)),
     Product.countDocuments(filter)
   ]);
-
-  res.json({ items, total, page: Number(page), pages: Math.ceil(total / Number(limit)) });
+  
+  console.log('listPublicProducts found items:', items.length);
+  console.log('Sample product images:', items.slice(0, 3).map(p => ({ id: p._id, name: p.name, images: p.images })));
+  
+  // For each product, calculate the next available time based on existing bookings
+  const itemsWithNextAvailable = await Promise.all(items.map(async (product) => {
+    const productObj = product.toObject();
+    
+    // Find the next available time based on existing confirmed/picked_up orders
+    const overlappingOrders = await RentalOrder.find({
+      status: { $in: ['confirmed', 'picked_up'] },
+      'items.productId': product._id
+    }).sort({ 'items.endDate': 1 });
+    
+    let nextAvailableTime = null;
+    if (overlappingOrders.length > 0) {
+      // Find the latest end time from overlapping orders
+      let latestEndTime = null;
+      for (const order of overlappingOrders) {
+        for (const item of order.items) {
+          if (String(item.productId) === String(product._id)) {
+            if (!latestEndTime || new Date(item.endDate) > latestEndTime) {
+              latestEndTime = new Date(item.endDate);
+            }
+          }
+        }
+      }
+      if (latestEndTime) {
+        nextAvailableTime = latestEndTime;
+      }
+    }
+    
+    productObj.nextAvailableTime = nextAvailableTime;
+    return productObj;
+  }));
+  
+  res.json({ items: itemsWithNextAvailable, total, page: Number(page), pages: Math.ceil(total / Number(limit)) });
 }
 
 export async function createProduct(req, res) {
@@ -132,24 +157,34 @@ export async function checkAvailability(req, res) {
   const product = await Product.findById(req.params.id);
   if (!product) return res.status(404).json({ message: 'Product not found' });
   
-  // Get all confirmed and picked up orders for this product
-  const confirmedOrders = await RentalOrder.find({
+  if (!startDate || !endDate) {
+    // If no date range provided, return current static availability
+    return res.json({ 
+      productId: product._id, 
+      available: product.availableQuantity,
+      total: product.quantity,
+      availableQuantity: product.availableQuantity 
+    });
+  }
+  
+  // Calculate dynamic availability based on overlapping bookings
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  
+  // Get all confirmed/picked_up orders that overlap with the requested period
+  const overlappingOrders = await RentalOrder.find({
     status: { $in: ['confirmed', 'picked_up'] },
-    'items.productId': product._id
+    'items.productId': product._id,
+    'items.startDate': { $lt: end },
+    'items.endDate': { $gt: start }
   });
   
-  // Calculate actual availability based on overlapping bookings
   let bookedQuantity = 0;
-  for (const order of confirmedOrders) {
+  for (const order of overlappingOrders) {
     for (const item of order.items) {
       if (String(item.productId) === String(product._id)) {
-        // Check if this booking overlaps with the requested time range
-        const orderStart = new Date(item.startDate);
-        const orderEnd = new Date(item.endDate);
-        const requestStart = new Date(startDate);
-        const requestEnd = new Date(endDate);
-        
-        if (orderStart < requestEnd && requestStart < orderEnd) {
+        // Check if this item overlaps with the requested period
+        if (start < new Date(item.endDate) && end > new Date(item.startDate)) {
           bookedQuantity += item.quantity;
         }
       }
@@ -162,8 +197,7 @@ export async function checkAvailability(req, res) {
     productId: product._id, 
     available, 
     total: product.quantity,
-    availableQuantity: available, // Return calculated availability
-    bookedQuantity
+    availableQuantity: product.availableQuantity 
   });
 }
 

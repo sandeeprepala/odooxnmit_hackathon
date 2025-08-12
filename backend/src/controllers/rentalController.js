@@ -107,12 +107,9 @@ export async function confirmOrder(req, res) {
   order.status = 'confirmed';
   await order.save();
   
-  // Decrease product available quantities when confirmed
-  for (const item of order.items) {
-    await Product.findByIdAndUpdate(item.productId, { 
-      $inc: { availableQuantity: -Math.abs(item.quantity) } 
-    });
-  }
+  // Note: We don't decrease availableQuantity here anymore
+  // Availability is now calculated dynamically based on overlapping bookings
+  // and the product's beginRentTime/endRentTime windows
   
   res.json(order);
 }

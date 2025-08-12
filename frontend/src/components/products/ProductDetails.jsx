@@ -12,6 +12,16 @@ export default function ProductDetails({ product }) {
     });
   };
 
+  const getAvailabilityText = () => {
+    if (product.nextAvailableTime) {
+      return `Next available: ${formatDateTime(product.nextAvailableTime)}`;
+    }
+    if (product.beginRentTime) {
+      return `Available from: ${formatDateTime(product.beginRentTime)}`;
+    }
+    return `Available Quantity: ${product.availableQuantity}`;
+  };
+
   if (!product) return null;
   return (
     <div className="card">
@@ -57,34 +67,10 @@ export default function ProductDetails({ product }) {
       
       <p>{product.description}</p>
       <div>Price: ₹{product.basePrice}/day</div>
-      <div>Available Quantity: {product.availableQuantity}</div>
-      
-      {/* Time Availability Information */}
-      <div style={{ marginTop: '1rem', padding: '1rem', backgroundColor: '#0d0f13', borderRadius: '8px' }}>
-        <h4 style={{ margin: '0 0 0.5rem 0', color: '#495057' }}>Availability Information</h4>
-        
-        {product.beginRentTime && (
-          <div style={{ marginBottom: '0.5rem' }}>
-            <strong >Available from:</strong> {formatDateTime(product.beginRentTime)}
-          </div>
-        )}
-        
-        {product.endRentTime && (
-          <div style={{ marginBottom: '0.5rem' }}>
-            <strong>Available until:</strong> {formatDateTime(product.endRentTime)}
-          </div>
-        )}
-        
-        {!product.beginRentTime && !product.endRentTime && (
-          <div style={{ marginBottom: '0.5rem', color: '#28a745' }}>
-            <strong>✓ Available anytime</strong>
-          </div>
-        )}
-        
-        <div style={{ fontSize: '0.9em', color: '#6c757d', marginTop: '0.5rem' }}>
-          <em>Note: This product may be available for partial time periods. Check the availability calendar for specific time slots.</em>
-        </div>
-      </div>
+      <div>{getAvailabilityText()}</div>
+      {product.endRentTime && (
+        <div>Available until: {formatDateTime(product.endRentTime)}</div>
+      )}
     </div>
   );
 }
