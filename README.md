@@ -1,5 +1,7 @@
 ## Rental Management System (MERN) - MVP
 
+-Video link - https://drive.google.com/file/d/1gtHC6NjLV-AWYNgZLTMtVneA_FhFS3uL/view
+
 This is a beginner-friendly MERN stack MVP for a Rental Management System. It includes a Node/Express backend with MongoDB (Mongoose) and a React frontend (Vite). The project is structured for clarity and easy modification.
 
 ### Roles
@@ -98,5 +100,7 @@ rental management/
 - Controllers contain simple, readable flows.
 - Utils encapsulate pricing and availability basics for easy extension.
 - Frontend Contexts are minimal and easy to follow.
+
+
 
 
