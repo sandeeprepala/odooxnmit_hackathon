@@ -23,6 +23,22 @@ export default function ProductCard({ product }) {
   const imageUrl = getFirstImageUrl(product.images);
   console.log('Constructed image URL:', imageUrl);
 
+  // Function to handle image load error
+  const handleImageError = (e) => {
+    console.error('Image failed to load:', imageUrl);
+    console.error('Image element:', e.target);
+    console.error('Product details:', product);
+    
+    // Hide the failed image
+    e.target.style.display = 'none';
+    
+    // Show the fallback text
+    const fallback = e.target.nextSibling;
+    if (fallback) {
+      fallback.style.display = 'flex';
+    }
+  };
+
   return (
     <div className="card">
       <div style={{ height: 140, background: '#f1f3f5', borderRadius: 6, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
@@ -36,11 +52,7 @@ export default function ProductCard({ product }) {
               objectFit: 'cover',
               borderRadius: 6
             }}
-            onError={(e) => {
-              console.error('Image failed to load:', imageUrl, e);
-              e.target.style.display = 'none';
-              e.target.nextSibling.style.display = 'flex';
-            }}
+            onError={handleImageError}
             onLoad={() => {
               console.log('Image loaded successfully:', imageUrl);
             }}

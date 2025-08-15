@@ -7,17 +7,28 @@ export function getImageUrl(imagePath) {
     return imagePath;
   }
   
-  // Use the base URL without /api since the uploads folder is at the root
-  const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000').replace('/api', '');
+  // Get base URL from environment or use default, and ensure we're using the base URL without /api
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+  const apiBaseUrl = baseUrl.replace('/api', '');
   
-  // Handle the path to ensure it works with the /uploads directory
+  // Log the URL construction process
+  console.log('Constructing image URL:', {
+    original: imagePath,
+    baseUrl,
+    apiBaseUrl
+  });
+  
+  // Clean up the path to ensure proper formatting
   let cleanPath;
-  if (imagePath.includes('/uploads/')) {
-    // If it already has /uploads/, just remove the leading slash
-    cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
+  if (imagePath.startsWith('/uploads/')) {
+    // Path is already in correct format
+    cleanPath = imagePath.slice(1); // Remove leading slash
+  } else if (imagePath.startsWith('uploads/')) {
+    // Path is correct but without leading slash
+    cleanPath = imagePath;
   } else {
-    // If it doesn't have /uploads/, add it
-    cleanPath = imagePath.startsWith('/') ? `uploads${imagePath}` : `uploads/${imagePath}`;
+    // Add uploads prefix if missing
+    cleanPath = `uploads/${imagePath.replace(/^\//, '')}`;
   }
   
   const fullUrl = `${apiBaseUrl}/${cleanPath}`;

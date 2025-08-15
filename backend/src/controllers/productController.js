@@ -126,13 +126,23 @@ export async function createProduct(req, res) {
   if (body.isRentable !== undefined) body.isRentable = body.isRentable === 'true' || body.isRentable === true;
   if (body.beginRentTime) body.beginRentTime = new Date(body.beginRentTime);
   if (body.endRentTime) body.endRentTime = new Date(body.endRentTime);
+  // Store the full relative path for images
   const images = req.files?.map(f => `/uploads/${f.filename}`) || [];
+  
+  console.log('Creating product with images:', images);
   
   // Set availableQuantity to quantity when creating a new product
   const product = await Product.create({ 
     ...body, 
     images,
     availableQuantity: body.quantity || 0
+  });
+  
+  // Log the created product for debugging
+  console.log('Created product:', {
+    id: product._id,
+    name: product.name,
+    images: product.images
   });
   res.status(201).json(product);
 }
