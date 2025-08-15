@@ -1,6 +1,6 @@
-## Rental Management System (MERN) - MVP
+## Rental Management System
 
--Video link - https://drive.google.com/file/d/1gtHC6NjLV-AWYNgZLTMtVneA_FhFS3uL/view
+Video link - https://drive.google.com/file/d/1gtHC6NjLV-AWYNgZLTMtVneA_FhFS3uL/view
 
 This is a beginner-friendly MERN stack MVP for a Rental Management System. It includes a Node/Express backend with MongoDB (Mongoose) and a React frontend (Vite). The project is structured for clarity and easy modification.
 
@@ -40,8 +40,6 @@ cp .env.example .env
 npm run dev
 ```
 
-Server default: http://localhost:5000
-
 ### 2) Frontend
 
 ```bash
@@ -50,8 +48,6 @@ npm install
 cp .env.example .env
 npm run dev
 ```
-
-App default: http://localhost:5173
 
 ---
 
@@ -63,7 +59,7 @@ Key backend vars:
 - `MONGO_URI`
 - `JWT_SECRET`
 - `CLIENT_URL` (CORS)
-- Email & Razorpay keys (optional for local dev)
+- Email & Razorpay keys 
 
 ---
 
