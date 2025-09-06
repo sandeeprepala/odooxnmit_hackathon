@@ -12,7 +12,8 @@ const productSchema = new mongoose.Schema(
     beginRentTime: { type: Date },
     endRentTime: { type: Date },
     specifications: { type: Object, default: {} },
-    isActive: { type: Boolean, default: true }
+    category: { type: String, default: "General" },
+    isActive: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

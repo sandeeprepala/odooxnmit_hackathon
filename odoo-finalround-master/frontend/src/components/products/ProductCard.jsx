@@ -12,31 +12,12 @@ export default function ProductCard({ product }) {
     });
   };
 
-  // Debug logging
-  console.log('ProductCard render:', { 
-    productId: product._id, 
-    productName: product.name, 
-    images: product.images,
-    hasImages: product.images && product.images.length > 0 
-  });
-
   const imageUrl = getFirstImageUrl(product.images);
-  console.log('Constructed image URL:', imageUrl);
 
-  // Function to handle image load error
   const handleImageError = (e) => {
-    console.error('Image failed to load:', imageUrl);
-    console.error('Image element:', e.target);
-    console.error('Product details:', product);
-    
-    // Hide the failed image
     e.target.style.display = 'none';
-    
-    // Show the fallback text
     const fallback = e.target.nextSibling;
-    if (fallback) {
-      fallback.style.display = 'flex';
-    }
+    if (fallback) fallback.style.display = 'flex';
   };
 
   return (
@@ -46,24 +27,29 @@ export default function ProductCard({ product }) {
           <img 
             src={imageUrl} 
             alt={product.name}
-            style={{ 
-              width: '100%', 
-              height: '100%', 
-              objectFit: 'cover',
-              borderRadius: 6
-            }}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 6 }}
             onError={handleImageError}
-            onLoad={() => {
-              console.log('Image loaded successfully:', imageUrl);
-            }}
           />
         ) : null}
         <span style={{ display: product.images && product.images.length > 0 ? 'none' : 'flex' }}>
           No Image
         </span>
       </div>
+
+      {/* Product Name */}
       <h3>{product.name}</h3>
+
+      {/* Product Category */}
+      {product.category && (
+        <p style={{ fontSize: '0.9em', color: '#6c757d', margin: '4px 0' }}>
+          Category: {product.category.charAt(0).toUpperCase() + product.category.slice(1)}
+        </p>
+      )}
+
+      {/* Product Description */}
       <p style={{ minHeight: 48 }}>{product.description}</p>
+
+      {/* Price & Availability */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <div>₹{product.basePrice}/day</div>
@@ -86,10 +72,10 @@ export default function ProductCard({ product }) {
             </div>
           )}
         </div>
+
+        {/* View Button */}
         <Link to={`/products/${product._id}`} className="btn">View</Link>
       </div>
     </div>
   );
 }
-
-
