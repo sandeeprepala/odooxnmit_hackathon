@@ -178,9 +178,9 @@ export default function ProductsPage() {
               {categoryFilter !== 'all' && ` • Category: ${categoryOptions.find(c => c.value === categoryFilter)?.label}`}
             </div>
             <div className="flex gap-2">
-              {user?.role === 'admin' && (
+              {/* {user?.role === 'admin' && (
                 <div className="px-3 py-1 bg-gray-700 rounded text-sm">Admin view</div>
-              )}
+              )} */}
               <button type="button" onClick={clearFilters} className="btn btn-secondary">
                 Clear All Filters
               </button>

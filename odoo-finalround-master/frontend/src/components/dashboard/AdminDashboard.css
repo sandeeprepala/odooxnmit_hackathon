@@ -1,0 +1,127 @@
+/* Dashboard layout */
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 20px;
+  background: #fafafa;
+}
+
+/* Loading */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #ff6600;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+/* Stats cards */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+.stat-card {
+  border-radius: 12px;
+  padding: 20px;
+  color: #fff;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.stat-card .stat-label {
+  font-size: 14px;
+  opacity: 0.9;
+}
+.stat-card .stat-value {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 6px 0;
+}
+.stat-card .stat-sub {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* Card colors */
+.stat-card.blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+.stat-card.green { background: linear-gradient(135deg, #10b981, #059669); }
+.stat-card.purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+.stat-card.orange { background: linear-gradient(135deg, #ff6600, #e65500); }
+
+/* Charts */
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+}
+.chart-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+.chart-card h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #333;
+}
+.chart {
+  height: 300px;
+}
+
+/* Activity */
+.activity-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+.activity-card h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.activity-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 10px;
+}
+.activity-message {
+  font-size: 14px;
+  font-weight: 500;
+}
+.activity-time {
+  font-size: 12px;
+  color: #777;
+}
+
+/* Activity dots */
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.dot.green { background: #10b981; }
+.dot.blue { background: #3b82f6; }
+.dot.purple { background: #8b5cf6; }
+.dot.orange { background: #ff6600; }
+.dot.indigo { background: #4f46e5; }

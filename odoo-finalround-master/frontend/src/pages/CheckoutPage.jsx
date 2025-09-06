@@ -28,13 +28,13 @@ export default function CheckoutPage() {
       <div className="card">
         <h3 className="section-title">Delivery Address</h3>
         <textarea placeholder="Address" rows="5" />
-        <label>
+        {/* <label>
           <input type="checkbox" /> Billing address same as delivery address
-        </label>
-        <label>Delivery Method</label>
-        <select>
+        </label> */}
+        {/* <label>Delivery Method</label> */}
+        {/* <select>
           <option>Please Pick Something</option>
-        </select>
+        </select> */}
       </div>
       <div className="card">
         <h3 className="section-title">Order Summary</h3>

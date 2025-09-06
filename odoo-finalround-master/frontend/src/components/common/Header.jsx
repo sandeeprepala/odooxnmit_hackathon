@@ -11,7 +11,7 @@ export default function Header() {
   return (
     <header className="header">
       <div className="container header-inner">
-        <Link to="/" className="brand">Rental Management</Link>
+        <Link to="/" className="brand">Eco-Finds</Link>
         <nav className="nav">
           {user?.role === 'admin' && <Link className="pill" to="/dashboard">Dashboard</Link>}
           <Link className="pill" to={user?.role === 'admin' ? '/admin/orders' : '/orders'}>Order</Link>

@@ -74,13 +74,13 @@ export default function AdminCreateProductPage() {
             <input type="number" name="quantity" value={form.quantity} onChange={change} />
           </div>
           <div>
-            <label>
+            {/* <label>
               <input type="checkbox" name="isRentable" checked={form.isRentable} onChange={change} /> Rentable
-            </label>
+            </label> */}
           </div>
         </div>
 
-        <div className="two-col">
+        {/* <div className="two-col">
           <div>
             <label>Begin Rent Time</label>
             <input type="datetime-local" name="beginRentTime" value={form.beginRentTime} onChange={change} />
@@ -89,7 +89,7 @@ export default function AdminCreateProductPage() {
             <label>End Rent Time</label>
             <input type="datetime-local" name="endRentTime" value={form.endRentTime} onChange={change} />
           </div>
-        </div>
+        </div> */}
 
         {/* Category Select */}
         <label>Category</label>
