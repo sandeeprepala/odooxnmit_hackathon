@@ -237,7 +237,7 @@ export default function PaymentPage() {
                       <div className="border-t border-gray-700 pt-3 mt-3">
                         <div className="flex justify-between font-bold text-lg">
                           <span className="text-gray-200">Total Amount:</span>
-                          <span className="text-purple-300">₹{order.totalAmount + order.deposit}</span>
+                          <span className="text-purple-300">₹{order.totalAmount}</span>
                         </div>
                       </div>
                     </div>
@@ -269,7 +269,7 @@ export default function PaymentPage() {
                     Processing Payment...
                   </span>
                 ) : (
-                  `Pay ₹${order.totalAmount + order.deposit}`
+                  `Pay ₹${order.totalAmount}`
                 )}
               </button>
             </div>
