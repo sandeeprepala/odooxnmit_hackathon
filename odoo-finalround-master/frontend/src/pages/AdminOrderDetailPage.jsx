@@ -56,9 +56,9 @@ export default function AdminOrderDetailPage() {
         </div>
         <div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <button className="btn" onClick={() => setStatus('confirmed')}>Quotation → Confirm</button>
-            <button className="btn" onClick={() => setStatus('picked_up')}>Ready → Pickup</button>
-            <button className="btn" onClick={() => setStatus('returned')}>Pickup → Returned</button>
+            <button className="btn" onClick={() => setStatus('confirmed')}>Confirm</button>
+            {/* <button className="btn" onClick={() => setStatus('picked_up')}>Ready → Pickup</button>
+            <button className="btn" onClick={() => setStatus('returned')}>Pickup → Returned</button> */}
             <button className="btn secondary" onClick={() => setStatus('cancelled')}>Cancel</button>
           </div>
         </div>

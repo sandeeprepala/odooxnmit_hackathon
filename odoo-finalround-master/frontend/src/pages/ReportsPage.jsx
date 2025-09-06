@@ -17,7 +17,7 @@ export default function ReportsPage() {
   return (
     <div className="two-col">
       <div className="card">
-        <h3 className="section-title">Rental Status Counts</h3>
+        <h3 className="section-title">Products Counts</h3>
         {data.byStatus.map((r) => (
           <div key={r.status} style={{ display: 'flex', justifyContent: 'space-between', padding: '.25rem 0' }}>
             <span>{r.status}</span>
